@@ -1,0 +1,59 @@
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+int buzzerPin = 8;
+int distCM;
+const  int trigger=6; // Ultrasonic Sensor pin
+const  int echo=7; // Ultrasonic Sensor  pin
+float  distance; // Ultrasonic Sensor 
+float dist_inches; // Ultrasonic Sensor 
+
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(buzzerPin, OUTPUT);
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+
+  pinMode(trigger,OUTPUT);
+  pinMode(echo,INPUT);
+}
+void loop() {
+  int value = analogRead(A0);
+
+  digitalWrite(trigger,LOW);
+  delayMicroseconds(5);
+  digitalWrite(trigger,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigger,LOW);
+  distance=pulseIn(echo,HIGH);
+  distCM=distance*0.034/2; //to cm
+  
+  //lcd.print(value);
+  //lcd.print("   ");
+  Serial.println(value);
+  //lcd.setCursor(0, 1);
+
+
+  if (0 <= value && value  <= 50) {
+    lcd.setCursor(0, 0);
+    lcd.print("No Flood   ");
+    digitalWrite(buzzerPin, LOW);
+  } else if (value > 51 && value < 500) {
+    lcd.setCursor(0, 0);
+    lcd.print("FLOOD RISING  ");
+    digitalWrite(buzzerPin, HIGH);
+    lcd.setCursor(0, 1);
+    lcd.print("Rise: ");
+    lcd.print(distCM);
+    lcd.print("cm");
+  } else if (value > 501){
+    lcd.setCursor(0, 0);
+    lcd.print("FLOOD HIGH  ");
+    digitalWrite(buzzerPin, HIGH);
+    lcd.setCursor(0, 1);
+    lcd.print("Rise: ");
+    lcd.print(distCM);
+    lcd.print("cm");
+  }
+}
